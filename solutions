@@ -1,0 +1,151 @@
+//Get all invoices where the UnitPrice on the InvoiceLine is greater than $0.99.
+SELECT *
+FROM Invoice i
+JOIN InvoiceLine il 
+ON il.invoiceId = i.invoiceId
+WHERE il.unitprice > 0.99
+
+//Get the InvoiceDate, customer FirstName and LastName, and Total from all invoices.
+SELECT i.invoicedate, c.firstname, c.lastname, i.total
+FROM Invoice i
+JOIN Customer c ON i.customerid = c.customerid
+
+//Get the customer FirstName and LastName and the support rep's FirstName and LastName from all customers.
+Support reps are on the Employee table.
+SELECT c.firstname, c.lastname, e.firstname, e.lastname
+FROM Customer c
+JOIN Employee e
+ON c.supportrepid = e.employeeid
+
+//Get the album Title and the artist Name from all albums.
+
+SELECT al.title, ar.name
+FROM Album al
+JOIN Artist ar 
+ON al.artistid = ar.artistid
+
+//Get all PlaylistTrack TrackIds where the playlist Name is Music.
+
+SELECT pt.trackid
+FROM PlaylistTrack pt
+JOIN Playlist p ON pt.playlistid = p.playlistid
+WHERE p.name = "Music"
+
+//Get all Track Names for PlaylistId 5.
+
+SELECT t.name
+FROM Track t
+JOIN PlaylistTrack pt ON t.trackid = pt.trackid
+WHERE pt.playlistid =5;
+
+//Get all Track Names and the playlist Name that they're on ( 2 joins ).
+
+SELECT t.name, p.Name
+FROM Track t
+JOIN PlaylistTrack pt ON t.TrackId = pt.TrackId
+JOIN Playlist p ON pt.PlaylistId = p.PlaylistId;
+
+//Get all Track Names and Album Titles that are the genre "Alternative" ( 2 joins ).
+SELECT t.name, a.title
+FROM Track t
+JOIN Album a ON t.albumid = a.albumid
+JOIN Genre g ON t.genreid = g.genreid
+WHERE g.name = "Alternative"
+
+-------------------------------------------------------Nested Queries----------------------------------------------------------------------
+//Get all invoices where the UnitPrice on the InvoiceLine is greater than $0.99.
+
+SELECT *
+FROM Invoice
+WHERE invoiceid IN (SELECT invoiceid FROM invoiceline WHERE unitprice > 0.99);
+
+
+//Get all Playlist Tracks where the playlist name is Music.
+SELECT *
+FROM PlaylistTrack 
+WHERE playlistid = (SELECT playlistid FROM playlist WHERE name ="Music")    (DONT USE IN, USE =. ASK FOR SPECIFIC, USE =)
+
+//Get all Track names for PlaylistId 5.
+SELECT name
+FROM Track
+WHERE trackid IN (SELECT trackid FROM playlisttrack WHERE playlistid = 5);
+
+//Get all tracks where the Genre is Comedy.
+SELECT *
+FROM Track
+
+//Get all tracks where the Album is Fireball.
+SELECT *
+FROM Track
+WHERE albumid IN (SELECT albumid FROM Album WHERE title ="Fireball")
+
+//Get all tracks for the artist Queen ( 2 nested subqueries ).
+SELECT *
+FROM Track
+WHERE albumid IN (SELECT albumid FROM album WHERE artistid IN( SELECT artistid FROM artist WHERE name ="Queen"))
+WHERE genreid IN (SELECT genreid FROM Genre WHERE name = "Comedy")
+
+
+------------------------------------------------------Updating Rows----------------------------------------------------------------------
+//Find all customers with fax numbers and set those numbers to null.
+UPDATE Customer
+SET fax = null
+WHERE fax IS NOT NULL
+
+//Find all customers with no company (null) and set their company to "Self".
+UPDATE Customer
+SET Company = "Self"
+WHERE Company IS NULL
+
+//Find the customer Julia Barnett and change her last name to Thompson.
+UPDATE Customer
+SET lastname = "Thompson"
+WHERE firstname = "Julia" AND lastname = "Barnett"
+
+//Find the customer with this email luisrojas@yahoo.cl and change his support rep to 4.
+UPDATE customer
+SET supportrepid = 4
+WHERE email IS "luisrojas@yahoo.cl"
+
+//Find all tracks that are the genre Metal and have no composer. Set the composer to "The darkness around us".
+UPDATE Track
+SET Composer = "The darkness around us"
+WHERE GenreId = ( SELECT GenreId FROM Genre WHERE Name = "Metal" )
+AND Composer IS null;
+
+--------------------------------------------------Group By--------------------------------------------------------------------------------
+//Find a count of how many tracks there are per genre. Display the genre name with the count.
+SELECT Count (*), g.name
+FROM Track t
+JOIN Genre g ON t.genreid = g.genreid
+GROUP BY g.name
+
+//Find a count of how many tracks are the "Pop" genre and how many tracks are the "Rock" genre.
+SELECT count (*), g.name
+FROM tract t
+JOIN genre g ON t.genreid = t.genreid
+WHERE g.name = "Pop" OR g.name = "Rock"
+GROUP BY g.name
+
+//Find a list of all artists and how many albums they have.
+SELECT ar.name, COUNT (*)
+FROM Artist ar
+JOIN Album al ON ar.artistid = al.artistid
+GROUP BY al.artistid
+
+----------------------------------------------------Use Distinct -------------------------------------------------------------------------
+//From the Track table find a unique list of all Composers.
+
+SELECT DISTINCT composer
+FROM track;
+
+//From the Invoice table find a unique list of all BillingPostalCodes.
+SELECT DISTINCT billingpostalcode
+FROM invoice
+
+//From the Customer table find a unique list of all Companys.
+SELECT DISTINCT company
+FROM customer
+
+--------------------------------------------------Use Delete------------------------------------------------------------------------------
+
